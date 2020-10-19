@@ -2,8 +2,20 @@ const config = require('./config.json');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
+
+function isMatch(command, content) {
+	config.prefixes.forEach(prefix => {
+		if (content === `${prefix}${command}`) {
+			return true;
+		}
+	})
+
+	return false;
+};
+
+
 client.on('message', message => {
-	if (message.content === `${config.prefix}proclaim`) {
+	if (isMatch('proclaim', message.content)) {
 		let engineers = config.engineers;
 	  
 		let today = new Date();
@@ -14,7 +26,7 @@ client.on('message', message => {
 		let position = elapsedWeeks % engineers.length;
 		let engineer = engineers[position];
 
-		let proclamation = `Астрологи объявили эту неделю неделей ${engineer.gen}. ${engineer.nom} удваивает количество закрытых багов`;
+		let proclamation = `🔮 Астрологи объявили эту неделю неделей ${engineer.gen}. ${engineer.nom} удваивает количество закрытых багов 🔮`;
 
 		message.channel.send(proclamation);
 	}
