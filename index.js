@@ -4,13 +4,7 @@ const client = new Discord.Client();
 
 
 function isMatch(command, content) {
-	config.prefixes.forEach(prefix => {
-		if (content === `${prefix}${command}`) {
-			return true;
-		}
-	})
-
-	return false;
+	return config.prefixes.some(prefix => content === `${prefix}${command}`)
 };
 
 
