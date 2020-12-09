@@ -76,11 +76,11 @@ async function getEnlistee(message) {
 		}
 	}
 
-	if (enlistee.length === 0 ) {
-		enlistee = onlineMembers.map(member => member.user.id);;
+	if (enlistee.length !== 0 ) {
+		return enlistee;
 	}
 
-	return enlistee;
+	return onlineMembers.map(member => member.user.id);
 };
 
 
@@ -110,7 +110,6 @@ client.on('message', async (message) => {
 	
 		if (isStart('scripter', message.content) || isStart('enlist', message.content) || isStart('xx', message.content)) {
 			let enlistee = await getEnlistee(message);
-		
 			if (enlistee.length === 0) {
 				message.channel.send('🔮 Астрологи объявили, что выбирать не из кого 🔮');
 				return;
