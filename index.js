@@ -28,84 +28,101 @@ function getElapsedWeekCount() {
 };
 
 
+async function getEnlistee(message) {
+	async function getOnlineMembers() {
+		let members = await (await client.guilds.fetch(Config.guildId)).members.fetch();
+				
+		let onlineMembers = [];
+		for(let [_, member] of members) {
+			if (member.deleted === true) {
+				continue;
+			}
+
+			if (member.user.bot == undefined || member.user.bot === true) {
+				continue;
+			}
+
+			if (member.presence.status !== 'online') {
+				continue;
+			}
+
+			onlineMembers.push(member);
+		};
+
+		return onlineMembers;
+	};
+
+
+	let enlistee = [];
+	if (0 < message.mentions.users.size) {
+		for (let [key, user] of message.mentions.users) {
+			if (user.bot === true) {
+				continue;
+			}
+
+			enlistee.push(key);
+		}
+	}
+
+	let onlineMembers = await getOnlineMembers();
+	if (0 < message.mentions.roles.size) {
+		for (let [key, role] of message.mentions.roles) {
+			if (role.deleted === true) {
+				continue;
+			}
+
+			let roleMembers = onlineMembers.filter(member => member._roles.includes(key));
+			enlistee = [...enlistee, ...roleMembers.map(member => member.user.id)];
+		}
+	}
+
+	if (enlistee.length === 0 ) {
+		enlistee = onlineMembers.map(member => member.user.id);;
+	}
+
+	return enlistee;
+};
+
+
+function getProclamation() {
+	let engineers = Config.engineers;
+	let elapsedWeeks = getElapsedWeekCount();
+	
+	let position = elapsedWeeks % engineers.length;
+	let engineer = engineers[position];
+
+	return `🔮 Астрологи объявили эту неделю неделей ${engineer.gen}. ${engineer.nom} удваивает количество закрытых багов 🔮`;
+};
+
+
 function getRandomInt(max) {
 	return Math.floor(Math.random() * Math.floor(max));
-}
+};
 
 
 client.on('message', async (message) => {
 	try {
-		if (isMatch('proclaim', message.content)) {
-			let engineers = Config.engineers;
-			let elapsedWeeks = getElapsedWeekCount();
-			
-			let position = elapsedWeeks % engineers.length;
-			let engineer = engineers[position];
-	
-			let proclamation = `🔮 Астрологи объявили эту неделю неделей ${engineer.gen}. ${engineer.nom} удваивает количество закрытых багов 🔮`;
+		if (isMatch('proclaim', message.content) || isMatch('zz', message.content)) {
+			let proclamation = getProclamation();
 	
 			message.channel.send(proclamation);
 		}
 	
-		if (isStart('scripter', message.content) || isStart('enlist', message.content)) {
-			let participants = [];
+		if (isStart('scripter', message.content) || isStart('enlist', message.content) || isStart('xx', message.content)) {
+			let enlistee = await getEnlistee(message);
 		
-			if (0 < message.mentions.users.size) {
-				for (let [key, user] of message.mentions.users) {
-					if (user.bot === true) {
-						continue;
-					}
-	
-					participants.push(key);
-				}
-			}
-
-			let members = ( await (await client.guilds.fetch(Config.guildId)).members.fetch());
-		
-			let onlineMembers = [];
-			for(let [key, member] of members) {
-				if (member.deleted === true) {
-					continue;
-				}
-
-				if (member.user.bot == undefined || member.user.bot === true) {
-					continue;
-				}
-
-				if (member.presence.status !== 'online') {
-					continue;
-				}
-
-				onlineMembers.push(member);
-			};
-
-			if (0 < message.mentions.roles.size) {
-				for (let [key, role] of message.mentions.roles) {
-					if (role.deleted === true) {
-						continue;
-					}
-	
-					let roleMembers = onlineMembers.filter(member => member._roles.includes(key));
-					participants.push(roleMembers.map(member => member.user.id));
-				}
-			}
-
-			if (participants.length === 0 ) {
-				participants = onlineMembers.map(member => member.user.id);;
-			}
-
-			if (participants.length !== 0) {
-				let position = getRandomInt(participants.length);
-				message.channel.send(`📜 Астрологи выбрали <@${participants[position]}>`);
-
+			if (enlistee.length === 0) {
+				message.channel.send('🔮 Астрологи объявили, что выбирать не из кого 🔮');
 				return;
 			}
 
-			message.channel.send('🔮 Астрологи объявили, что выбирать не из кого 🔮');
+			let position = getRandomInt(enlistee.length);
+			message.channel.send(`📜 Астрологи выбрали <@${enlistee[position]}>`);
 		}
 	} catch (e) {
 		message.channel.send(`🔮 Астрологи многозначительно объявили следующее: «${e.message}» 🔮`);
 	}
 });
+
 
 client.login(process.env.HTDC_ON_CALL_DISCORD_TOKEN);
