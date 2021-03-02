@@ -91,7 +91,14 @@ function getProclamation() {
 	let position = elapsedWeeks % engineers.length;
 	let engineer = engineers[position];
 
-	return `🔮 Астрологи объявили эту неделю неделей ${engineer.gen}. ${engineer.nom} удваивает количество закрытых багов 🔮`;
+	let nextPosition = position + 1;
+	if (engineers.length <= nextPosition)
+		nextPosition = 0;
+
+	let nextEngineer = engineers[nextPosition];
+
+	return `🔮 Астрологи объявили эту неделю неделей ${engineer.gen} <@!${engineer.id}>. ${engineer.nom} удваивает количество закрытых багов 🔮` + 
+		`\r\nСледом <@${nextEngineer.id}>.`;
 };
 
 
@@ -102,13 +109,13 @@ function getRandomInt(max) {
 
 client.on('message', async (message) => {
 	try {
-		if (isMatch('proclaim', message.content) || isMatch('zz', message.content)) {
+		if (isMatch('proclaim', message.content)) {
 			let proclamation = getProclamation();
 	
 			message.channel.send(proclamation);
 		}
 	
-		if (isStart('scripter', message.content) || isStart('enlist', message.content) || isStart('xx', message.content)) {
+		if (isStart('scripter', message.content) || isStart('enlist', message.content)) {
 			let enlistee = await getEnlistee(message);
 			if (enlistee.length === 0) {
 				message.channel.send('🔮 Астрологи объявили, что выбирать не из кого 🔮');
