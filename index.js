@@ -91,10 +91,7 @@ function getProclamation() {
 	let position = elapsedWeeks % engineers.length;
 	let engineer = engineers[position];
 
-	let nextPosition = position + 1;
-	if (engineers.length <= nextPosition)
-		nextPosition = 0;
-
+	let nextPosition = (elapsedWeeks + 1) % engineers.length;
 	let nextEngineer = engineers[nextPosition];
 
 	return `🔮 Астрологи объявили эту неделю неделей ${engineer.gen} <@!${engineer.id}>. ${engineer.nom} удваивает количество закрытых багов 🔮` + 
