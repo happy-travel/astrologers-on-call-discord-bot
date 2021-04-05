@@ -84,18 +84,33 @@ async function getEnlistee(message) {
 };
 
 
-function getProclamation() {
+function getProclamation(correctionCoefficient) {
+	function getPosition(week, count, correction) {
+		let pos = (week % count) + correction;
+
+		if(count <= pos) {
+			pos = pos - count;
+		}
+
+		return pos;
+	}
+
+
+	if (correctionCoefficient === undefined || correctionCoefficient === 0) {
+		correctionCoefficient = 0;
+	}
+
 	let engineers = Config.engineers;
 	let elapsedWeeks = getElapsedWeekCount();
 	
-	let position = elapsedWeeks % engineers.length;
+	let position = getPosition(elapsedWeeks, engineers.length, correctionCoefficient);
 	let engineer = engineers[position];
 
-	let nextPosition = (elapsedWeeks + 1) % engineers.length;
+	let nextPosition = getPosition((elapsedWeeks + 1), engineers.length, correctionCoefficient);
 	let nextEngineer = engineers[nextPosition];
 
 	return `🔮 Астрологи объявили эту неделю неделей ${engineer.gen} <@!${engineer.id}>. ${engineer.nom} удваивает количество закрытых багов 🔮` + 
-		`\r\nСледом <@${nextEngineer.id}>.`;
+		`\r\nНа горизонте появляется <@${nextEngineer.id}>.`;
 };
 
 
@@ -107,7 +122,8 @@ function getRandomInt(max) {
 client.on('message', async (message) => {
 	try {
 		if (isMatch('proclaim', message.content)) {
-			let proclamation = getProclamation();
+			let correctionCoefficient = Number(process.env.HTDC_ON_CALL_CORRECTION_COEFFICIENT);
+			let proclamation = getProclamation(correctionCoefficient);
 	
 			message.channel.send(proclamation);
 		}
@@ -123,7 +139,7 @@ client.on('message', async (message) => {
 			message.channel.send(`📜 Астрологи выбрали <@${enlistee[position]}>`);
 		}
 	} catch (e) {
-		message.channel.send(`🔮 Астрологи многозначительно объявили следующее: «${e.message}» 🔮`);
+		message.channel.send(`🔮 Астрологи открыли свою мудрость: «${e.message}» 🔮`);
 	}
 });
 
