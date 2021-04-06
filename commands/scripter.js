@@ -1,27 +1,39 @@
-async function getEnlistee(message, guildId) {
-	async function getOnlineMembers(guildId) {
-		let members = await (await message.client.guilds.fetch(guildId)).members.fetch();
-				
-		let onlineMembers = [];
-		for(let [_, member] of members) {
-			if (member.deleted === true) {
-				continue;
-			}
+const Config = require('../config.json');
 
-			if (member.user.bot == undefined || member.user.bot === true) {
-				continue;
-			}
 
-			if (member.presence.status !== 'online') {
-				continue;
-			}
+async function getOnlineMembers(client, guildId) {
+	let members = await (await client.guilds.fetch(guildId)).members.fetch();
+			
+	let onlineMembers = [];
+	for(let [_, member] of members) {
+		if (member.deleted === true) {
+			continue;
+		}
 
-			onlineMembers.push(member);
-		};
+		if (member.user.bot == undefined || member.user.bot === true) {
+			continue;
+		}
 
-		return onlineMembers;
+		if (member.presence.status !== 'online') {
+			continue;
+		}
+
+		onlineMembers.push(member);
 	};
 
+	return onlineMembers;
+};
+
+
+async function getEnlistee(client, guildId, args) {
+	let onlineMembers = await getOnlineMembers(client, guildId);
+
+	let message = null;
+	if (args !== null && args !== undefined)
+		message = args.message;
+
+	if (message === undefined || message === null) 
+		return onlineMembers.map(member => member.user.id);
 
 	let enlistee = [];
 	if (0 < message.mentions.users.size) {
@@ -34,7 +46,6 @@ async function getEnlistee(message, guildId) {
 		}
 	}
 
-	let onlineMembers = await getOnlineMembers(guildId);
 	if (0 < message.mentions.roles.size) {
 		for (let [key, role] of message.mentions.roles) {
 			if (role.deleted === true) {
@@ -50,7 +61,7 @@ async function getEnlistee(message, guildId) {
 		return enlistee;
 	}
 
-	return onlineMembers.map(member => member.user.id);
+	return onlineMembers;
 };
 
 
@@ -62,14 +73,17 @@ function getRandomInt(max) {
 module.exports = {
 	name: 'scripter',
 	description: 'Заклать сакральную жертву!',
-	async execute(message, args) {
-		let enlistee = await getEnlistee(message, args.guildId);
+	async execute(client, channelId, args) {
+		let channel = await client.channels.fetch(channelId);
+        
+		let enlistee = await getEnlistee(client, Config.guildId, args);
         if (enlistee.length === 0) {
-            message.channel.send('🔮 Астрологи объявили, что выбирать не из кого 🔮');
+            channel.send('🔮1 Астрологи объявили, что выбирать не из кого 🔮');
             return;
         }
 
         let position = getRandomInt(enlistee.length);
-        message.channel.send(`📜 Астрологи выбрали <@${enlistee[position]}>`);
+
+		channel.send(`📜1 Астрологи выбрали <@${enlistee[position]}>`);
 	},
 };

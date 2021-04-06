@@ -1,3 +1,6 @@
+const Config = require('../config.json');
+
+
 function getElapsedWeekCount() {
 	let today = new Date();
 	let utcToday = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
@@ -9,7 +12,7 @@ function getElapsedWeekCount() {
 module.exports = {
 	name: 'proclaim',
 	description: 'Выслушать предсказание на следующую неделю',
-	execute(message, args) {
+	async execute(client, channelId, args) {
         function getPosition(week, count, correction) {
             let pos = (week % count) + correction;
     
@@ -21,9 +24,9 @@ module.exports = {
         }
     
     
-        let engineers = args.engineers;
-        let correctionCoefficient = args.correctionCoefficient;
-        if (correctionCoefficient === undefined || correctionCoefficient === 0) {
+        let engineers = Config.engineers;
+        let correctionCoefficient = Number(process.env.HTDC_ON_CALL_CORRECTION_COEFFICIENT);
+        if (correctionCoefficient === undefined || correctionCoefficient === null) {
             correctionCoefficient = 0;
         }
     
@@ -37,7 +40,8 @@ module.exports = {
     
         let proclamation = `🔮 Астрологи объявили эту неделю неделей ${engineer.gen} <@!${engineer.id}>. ${engineer.nom} удваивает количество закрытых багов 🔮` + 
             `\r\nНа горизонте появляется <@${nextEngineer.id}>.`;
-	
-        message.channel.send(proclamation);
+
+        let channel = await client.channels.fetch(channelId);
+        channel.send(proclamation);
 	},
 };

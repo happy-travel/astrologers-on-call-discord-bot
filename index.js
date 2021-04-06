@@ -28,22 +28,19 @@ client.on('message', async (message) => {
 		// Slice 1 to skip a prefix
 		const args = message.content.slice(1).trim().split(/ +/);
 		const command = args.shift().toLowerCase();
+		args.message = message;
 
-		if (command == 'proclaim') {
-			client.commands.get('proclaim').execute(message, {
-				args: args,
-				engineers: Config.engineers, 
-				correctionCoefficient: Number(process.env.HTDC_ON_CALL_CORRECTION_COEFFICIENT)
-			});
-		} else if (command == 'scripter') {
-			await client.commands.get('scripter').execute(message, {
-				args: args,
-				guildId = Config.guildId
-			});
-		}
+		await client.commands.get(command).execute(client, message.channel.id, args);
 	} catch (e) {
 		message.channel.send(`🔮 Астрологи открыли свою мудрость: «${e.message}» 🔮`);
 	}
+});
+
+
+client.ws.on('INTERACTION_CREATE', async (interaction) => {
+	let command = interaction.data.name;
+	
+	await client.commands.get(command).execute(client, interaction.channel_id, null);
 });
 
 
