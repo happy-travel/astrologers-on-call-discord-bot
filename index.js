@@ -44,4 +44,4 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
 });
 
 
-client.login(process.env.HTDC_ON_CALL_DISCORD_TOKEN);
+client.login(process.env.HTDC_ON_CALL_DISCORD_TOKEN);  
