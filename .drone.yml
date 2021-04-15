@@ -8,7 +8,7 @@ trigger:
     - main
   event:
     include:
-      - pull_request
+      - push
 
 steps:
 - name: Build docker image & push to repository
