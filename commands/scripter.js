@@ -78,12 +78,12 @@ module.exports = {
         
 		let enlistee = await getEnlistee(client, Config.guildId, args);
         if (enlistee.length === 0) {
-            channel.send('🔮1 Астрологи объявили, что выбирать не из кого 🔮');
+            channel.send('🔮 Астрологи объявили, что выбирать не из кого 🔮');
             return;
         }
 
         let position = getRandomInt(enlistee.length);
 
-		channel.send(`📜1 Астрологи выбрали <@${enlistee[position]}>`);
+		channel.send(`📜 Астрологи выбрали <@${enlistee[position]}>`);
 	},
 };
