@@ -23,9 +23,7 @@ spec:
       serviceAccountName: {{ include "astrologers.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      containers:
-        - args:
-         
+      containers:  
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
