@@ -16,6 +16,8 @@ steps:
   environment:
     GITHUB_TOKEN:
       from_secret: GITHUB_TOKEN
+    HTDC_ON_CALL_DISCORD_TOKEN:
+      from_secret: HTDC_ON_CALL_DISCORD_TOKEN   
     BUILD_VERSION: ${DRONE_COMMIT_SHA:0:7}
   settings:
     registry: registry.happytravel.com
@@ -32,6 +34,7 @@ steps:
     build_args_from_env:
       - GITHUB_TOKEN
       - BUILD_VERSION
+      - HTDC_ON_CALL_DISCORD_TOKEN
 
 - name: Deploy to production
   image: pelotech/drone-helm3:0.14.2
