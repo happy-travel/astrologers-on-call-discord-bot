@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: registry.happytravel.com/astrologers
+  repository: registry.happytravel.com/astrologers-on-call-discord-bot
   tag: latest
   pullPolicy: Always
 imagePullSecrets:
