@@ -84,6 +84,6 @@ module.exports = {
 
         let position = getRandomInt(enlistee.length);
 
-		channel.send(`📜 Астрологи выбрали ${enlistee[position]}`);
+		channel.send(`📜 Астрологи выбрали <@${enlistee[position]}>`);
 	},
 };
